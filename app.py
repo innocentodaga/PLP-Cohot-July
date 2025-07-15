@@ -1,2 +1,2 @@
 print("Hello world!")
-print("This is my plp python file")
+print("This is my PLP python file")
