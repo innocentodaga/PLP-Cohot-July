@@ -1,0 +1,20 @@
+# ignoring files that have an ending of .a or .o
+*.[ao]
+
+# ignoring all files that have an ending of .kv
+*.kv
+
+# but do track lib.a even though you are ignoring .a files above
+!lib.a
+
+# only ignore the TODO file in the current directory, not subdir/TODO
+/TODO
+
+# ignore all files in any directory named build
+build/
+
+# In the folder doc/ ignore doc/notes.txt, but not doc/server/arch.txt
+doc/*.txt  
+
+# ignore all .pdf files in the doc/ directory and any of its subdirectories 
+doc/**/*.pdf
