@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Guide to Basic Networking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Neutrals with Tech Blue -->
+    <!-- Application Structure Plan: The SPA is structured with a fixed sidebar for navigation and a main content area. This design was chosen to break a long presentation into a self-paced, non-linear learning experience. Users can easily jump between core topics like Fundamentals, Network Models, Addressing, and Security, which is more effective for both initial learning and later reference than a static, linear slideshow. The goal is to empower users to control their learning path. -->
+    <!-- Visualization & Content Choices: 
+        - Network Topologies -> Goal: Organize/Compare -> Viz: Interactive Chart.js scatter plots. Interaction: Hovering over nodes provides info. Justification: More engaging and memorable than static images. Library: Chart.js (Canvas).
+        - OSI/TCP/IP Models -> Goal: Compare/Inform -> Viz: Interactive vertical bar charts. Interaction: Clicking a layer (bar) displays its details. Justification: Turns a dense topic into an explorable diagram. Library: Chart.js (Canvas).
+        - Network Devices -> Goal: Inform -> Viz: Tabbed content blocks. Interaction: Clicking tabs reveals device info. Justification: Organizes related information compactly. Method: HTML/CSS/JS.
+        - Troubleshooting Commands -> Goal: Inform/Engage -> Viz: Mock terminal interface. Interaction: Clicking command buttons displays sample output. Justification: Provides a safe, hands-on feel for learning command-line tools. Method: HTML/CSS/JS.
+        - All other diagrams (e.g., DNS flow) -> Goal: Inform -> Viz: Styled HTML/CSS flowcharts. Interaction: Simple hover effects. Justification: Clear, accessible, and lightweight without requiring graphics libraries. Method: HTML/CSS/Tailwind.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+            color: #1e293b;
+        }
+        
+        .sidebar-link {
+            transition: all 0.2s ease-in-out;
+        }
+        
+        .sidebar-link.active,
+        .sidebar-link:hover {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            transform: translateX(4px);
+        }
+        
+        .content-section {
+            display: none;
+        }
+        
+        .content-section.active {
+            display: block;
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 350px;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        
+        .mock-terminal {
+            background-color: #1e293b;
+            color: #94a3b8;
+            font-family: monospace;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .mock-terminal-output {
+            color: #cbd5e1;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body class="antialiased">
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside class="w-full md:w-64 bg-white border-b md:border-r border-slate-200 p-4 md:p-6 shrink-0">
+            <h1 class="text-xl font-bold text-sky-800 mb-6">Networking Guide</h1>
+            <nav id="sidebarNav" class="space-y-2">
+                <a href="#fundamentals" class="sidebar-link active flex items-center p-3 rounded-lg font-medium">
+                    <span class="mr-3">🏠</span> Fundamentals
+                </a>
+                <a href="#models" class="sidebar-link flex items-center p-3 rounded-lg font-medium">
+                    <span class="mr-3">📊</span> Network Models
+                </a>
+                <a href="#addressing" class="sidebar-link flex items-center p-3 rounded-lg font-medium">
+                    <span class="mr-3">🏷️</span> Addressing & Protocols
+                </a>
+                <a href="#security" class="sidebar-link flex items-center p-3 rounded-lg font-medium">
+                    <span class="mr-3">🛡️</span> Security & Tools
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 p-6 md:p-10 overflow-y-auto">
+
+            <!-- Section: Fundamentals -->
+            <section id="fundamentals" class="content-section active space-y-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b pb-2">Network Fundamentals</h2>
+                <p class="text-slate-600">This section covers the absolute basics: what a network is, the different types you'll encounter, their physical and logical layouts (topologies), and the essential hardware that makes them work. Understanding these core concepts is the
+                    first step to mastering networking.</p>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">What is a Network?</h3>
+                    <p class="mb-4">A network is a collection of interconnected devices like computers, servers, and printers that can share resources and exchange data. Its purpose is to enable communication, share files and hardware, and centralize management.</p>
+                    <div class="p-4 bg-sky-50 rounded-lg text-center">
+                        <p class="font-mono text-sky-800">💻 ↔️ 🌐 ↔️ 📱 ↔️ 🖨️</p>
+                        <p class="text-sm text-sky-700 mt-2">Devices communicating and sharing resources.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">Network Types</h3>
+                    <div class="grid md:grid-cols-2 gap-4">
+                        <div class="border border-slate-200 p-4 rounded-lg">
+                            <h4 class="font-bold text-sky-700">LAN (Local Area Network)</h4>
+                            <p class="text-sm text-slate-600">Covers a small area like a home or office. High speed, typically using Wi-Fi or Ethernet.</p>
+                        </div>
+                        <div class="border border-slate-200 p-4 rounded-lg">
+                            <h4 class="font-bold text-sky-700">WAN (Wide Area Network)</h4>
+                            <p class="text-sm text-slate-600">Spans a large area, connecting multiple LANs. The Internet is the ultimate WAN.</p>
+                        </div>
+                        <div class="border border-slate-200 p-4 rounded-lg">
+                            <h4 class="font-bold text-sky-700">PAN (Personal Area Network)</h4>
+                            <p class="text-sm text-slate-600">A small network for personal devices, like connecting a phone to headphones via Bluetooth.</p>
+                        </div>
+                        <div class="border border-slate-200 p-4 rounded-lg">
+                            <h4 class="font-bold text-sky-700">MAN (Metropolitan Area Network)</h4>
+                            <p class="text-sm text-slate-600">Covers a city or large campus, bridging the gap between LAN and WAN.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">Network Topologies</h3>
+                    <p class="text-slate-600 mb-4">A topology is the layout of a network. Below are interactive diagrams of common topologies. Hover over a node to see its role.</p>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div>
+                            <h4 class="text-center font-semibold mb-2">Star Topology</h4>
+                            <div class="chart-container"><canvas id="starTopologyChart"></canvas></div>
+                        </div>
+                        <div>
+                            <h4 class="text-center font-semibold mb-2">Ring Topology</h4>
+                            <div class="chart-container"><canvas id="ringTopologyChart"></canvas></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">Key Network Devices</h3>
+                    <div class="grid md:grid-cols-3 gap-4">
+                        <div class="border border-slate-200 p-4 rounded-lg">
+                            <h4 class="font-bold text-sky-700">Router</h4>
+                            <p class="text-sm text-slate-600">Connects different networks together and directs traffic between them using IP addresses. Your home router connects your LAN to the Internet (WAN).</p>
+                        </div>
+                        <div class="border border-slate-200 p-4 rounded-lg">
+                            <h4 class="font-bold text-sky-700">Switch</h4>
+                            <p class="text-sm text-slate-600">Connects devices on the same local network (LAN). It's smarter than a hub, sending data only to the intended device using MAC addresses.</p>
+                        </div>
+                        <div class="border border-slate-200 p-4 rounded-lg">
+                            <h4 class="font-bold text-sky-700">Modem</h4>
+                            <p class="text-sm text-slate-600">Converts signals from your Internet Service Provider (ISP) into a digital signal your router can use. It's the bridge to the internet.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Network Models -->
+            <section id="models" class="content-section space-y-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b pb-2">Network Models</h2>
+                <p class="text-slate-600">Network models provide a standardized framework for understanding how different networking protocols and hardware work together. The two most important models are the conceptual OSI model and the practical TCP/IP model. Click on the layers
+                    in the charts below to learn about their functions.</p>
+
+                <div class="grid lg:grid-cols-2 gap-8 items-start">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-center mb-3">OSI Model (Conceptual)</h3>
+                        <div class="chart-container h-96 max-h-[450px]"><canvas id="osiModelChart"></canvas></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold text-center mb-3">TCP/IP Model (Practical)</h3>
+                        <div class="chart-container h-96 max-h-[450px]"><canvas id="tcpIpModelChart"></canvas></div>
+                    </div>
+                </div>
+                <div id="modelInfo" class="bg-white p-6 rounded-lg shadow-sm min-h-[150px]">
+                    <h3 id="modelLayerTitle" class="text-xl font-semibold text-sky-800">Click a layer to see details</h3>
+                    <p id="modelLayerDescription" class="text-slate-600 mt-2"></p>
+                </div>
+            </section>
+
+            <!-- Section: Addressing & Protocols -->
+            <section id="addressing" class="content-section space-y-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b pb-2">Addressing & Protocols</h2>
+                <p class="text-slate-600">For devices to communicate, they need unique addresses and common languages (protocols). This section explains IP addressing, the system that gives every device a unique identifier, and key protocols like DNS and DHCP that make the network
+                    function automatically.</p>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">IPv4 Addressing</h3>
+                    <p class="mb-4">An IPv4 address is a 32-bit number that uniquely identifies a device on a network. It's usually written as four numbers separated by periods.</p>
+                    <div class="p-4 bg-sky-50 rounded-lg font-mono text-center text-2xl text-sky-800 tracking-wider">
+                        192.168.1.10
+                    </div>
+                    <p class="mt-4 text-slate-600">A <span class="font-semibold">Subnet Mask</span> (e.g., 255.255.255.0) is used to divide the IP address into two parts: the network ID and the host ID.</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">DNS (Domain Name System)</h3>
+                    <p class="mb-4">DNS is the internet's phonebook. It translates human-friendly domain names (like `www.google.com`) into computer-friendly IP addresses.</p>
+                    <div class="space-y-2 text-center">
+                        <div class="p-3 bg-slate-100 rounded">You type 'google.com'</div>
+                        <div class="font-bold text-sky-600">↓</div>
+                        <div class="p-3 bg-slate-100 rounded">Computer asks DNS Server</div>
+                        <div class="font-bold text-sky-600">↓</div>
+                        <div class="p-3 bg-slate-100 rounded">DNS Server replies with '142.250.190.78'</div>
+                        <div class="font-bold text-sky-600">↓</div>
+                        <div class="p-3 bg-slate-100 rounded">Your browser connects to the server</div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">DHCP (Dynamic Host Configuration Protocol)</h3>
+                    <p>DHCP automatically assigns IP addresses to devices when they join a network. This avoids manual configuration and prevents duplicate IP addresses.</p>
+                </div>
+            </section>
+
+            <!-- Section: Security & Tools -->
+            <section id="security" class="content-section space-y-8">
+                <h2 class="text-3xl font-bold text-slate-800 border-b pb-2">Security & Tools</h2>
+                <p class="text-slate-600">Protecting a network is as important as building it. This section introduces fundamental security concepts and the command-line tools used by professionals to diagnose and troubleshoot network problems. Use the mock terminal below to see
+                    what these commands do.</p>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold mb-3">Firewall</h3>
+                        <p class="text-slate-600">A security barrier that monitors and controls incoming and outgoing network traffic based on predetermined security rules. It's the first line of defense.</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <h3 class="text-xl font-semibold mb-3">VPN (Virtual Private Network)</h3>
+                        <p class="text-slate-600">Creates a secure, encrypted "tunnel" over the public internet, protecting your data from being intercepted and providing privacy.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-xl font-semibold mb-3">Basic Troubleshooting Tools</h3>
+                    <div class="mock-terminal">
+                        <div class="flex space-x-2 mb-4">
+                            <button id="pingBtn" class="bg-sky-600 hover:bg-sky-700 text-white py-1 px-3 rounded text-sm">ping</button>
+                            <button id="ipconfigBtn" class="bg-sky-600 hover:bg-sky-700 text-white py-1 px-3 rounded text-sm">ipconfig</button>
+                            <button id="tracertBtn" class="bg-sky-600 hover:bg-sky-700 text-white py-1 px-3 rounded text-sm">tracert</button>
+                            <button id="nslookupBtn" class="bg-sky-600 hover:bg-sky-700 text-white py-1 px-3 rounded text-sm">nslookup</button>
+                        </div>
+                        <div id="terminalOutput" class="mock-terminal-output">
+                            C:\Users\Learner> Select a command to run...
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarLinks = document.querySelectorAll('.sidebar-link');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function showSection(hash) {
+                const targetId = hash.substring(1);
+
+                contentSections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+
+                sidebarLinks.forEach(link => {
+                    if (link.getAttribute('href') === hash) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetHash = this.getAttribute('href');
+                    window.location.hash = targetHash;
+                    showSection(targetHash);
+                });
+            });
+
+            const initialHash = window.location.hash || '#fundamentals';
+            showSection(initialHash);
+
+            // --- Chart Initializations ---
+
+            // Topology Charts
+            function createTopologyChart(ctx, type) {
+                const isStar = type === 'star';
+                const points = isStar ? [{
+                    x: 0,
+                    y: 0,
+                    label: 'Central Hub/Switch'
+                }] : [];
+
+                const numNodes = 5;
+                for (let i = 0; i < numNodes; i++) {
+                    const angle = (i / numNodes) * 2 * Math.PI;
+                    points.push({
+                        x: Math.cos(angle) * (isStar ? 0.8 : 1),
+                        y: Math.sin(angle) * (isStar ? 0.8 : 1),
+                        label: `Device ${i+1}`
+                    });
+                }
+
+                const datasets = [{
+                    data: points,
+                    backgroundColor: '#0ea5e9',
+                    pointRadius: 8,
+                    pointHoverRadius: 12,
+                }];
+
+                const linePlugin = {
+                    id: 'topologyLines',
+                    afterDraw: chart => {
+                        const ctx = chart.ctx;
+                        const meta = chart.getDatasetMeta(0);
+                        const points = meta.data;
+                        ctx.save();
+                        ctx.strokeStyle = '#94a3b8';
+                        ctx.lineWidth = 2;
+
+                        if (isStar) {
+                            const center = points[0];
+                            for (let i = 1; i < points.length; i++) {
+                                ctx.beginPath();
+                                ctx.moveTo(center.x, center.y);
+                                ctx.lineTo(points[i].x, points[i].y);
+                                ctx.stroke();
+                            }
+                        } else { // Ring
+                            for (let i = 0; i < points.length; i++) {
+                                const p1 = points[i];
+                                const p2 = points[(i + 1) % points.length];
+                                ctx.beginPath();
+                                ctx.moveTo(p1.x, p1.y);
+                                ctx.lineTo(p2.x, p2.y);
+                                ctx.stroke();
+                            }
+                        }
+                        ctx.restore();
+                    }
+                };
+
+                new Chart(ctx, {
+                    type: 'scatter',
+                    data: {
+                        datasets
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                display: false,
+                                min: -1.2,
+                                max: 1.2
+                            },
+                            y: {
+                                display: false,
+                                min: -1.2,
+                                max: 1.2
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return context.raw.label;
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    plugins: [linePlugin]
+                });
+            }
+
+            if (document.getElementById('starTopologyChart')) {
+                createTopologyChart(document.getElementById('starTopologyChart').getContext('2d'), 'star');
+            }
+            if (document.getElementById('ringTopologyChart')) {
+                createTopologyChart(document.getElementById('ringTopologyChart').getContext('2d'), 'ring');
+            }
+
+            // OSI and TCP/IP Model Charts
+            const osiData = {
+                labels: ['7. Application', '6. Presentation', '5. Session', '4. Transport', '3. Network', '2. Data Link', '1. Physical'],
+                descriptions: [
+                    'User interaction layer. Protocols like HTTP, FTP, and SMTP operate here.',
+                    'Ensures data is in a usable format and is where data encryption occurs.',
+                    'Maintains connections and is responsible for controlling ports and sessions.',
+                    'Provides reliable data transfer between end systems (TCP/UDP).',
+                    'Handles logical addressing (IP addresses) and routing of packets.',
+                    'Handles physical addressing (MAC addresses) and error checking.',
+                    'Transmits raw bit stream over the physical medium (cables, radio waves).'
+                ],
+                colors: ['#0284c7', '#0ea5e9', '#38bdf8', '#7dd3fc', '#a5f3fc', '#cffafe', '#e0f2fe']
+            };
+
+            const tcpIpData = {
+                labels: ['Application', 'Transport', 'Internet', 'Network Access'],
+                descriptions: [
+                    'Combines OSI layers 5-7. Handles high-level protocols like HTTP, DNS.',
+                    'Same as OSI Transport layer. Manages end-to-end communication (TCP/UDP).',
+                    'Same as OSI Network layer. Handles IP addressing and routing.',
+                    'Combines OSI layers 1-2. Deals with physical hardware and transmission.'
+                ],
+                colors: ['#0284c7', '#38bdf8', '#a5f3fc', '#e0f2fe']
+            };
+
+            const modelInfoTitle = document.getElementById('modelLayerTitle');
+            const modelInfoDesc = document.getElementById('modelLayerDescription');
+
+            function createModelChart(ctx, data, modelName) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            data: Array(data.labels.length).fill(1),
+                            backgroundColor: data.colors,
+                            borderColor: '#64748b',
+                            borderWidth: 1,
+                            barPercentage: 1.0,
+                            categoryPercentage: 1.0,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                display: false
+                            },
+                            y: {
+                                ticks: {
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        onClick: (evt, elements) => {
+                            if (elements.length > 0) {
+                                const index = elements[0].index;
+                                modelInfoTitle.textContent = `${modelName} - ${data.labels[index]}`;
+                                modelInfoDesc.textContent = data.descriptions[index];
+                            }
+                        }
+                    }
+                });
+            }
+
+            if (document.getElementById('osiModelChart')) {
+                createModelChart(document.getElementById('osiModelChart').getContext('2d'), osiData, 'OSI Model');
+            }
+            if (document.getElementById('tcpIpModelChart')) {
+                createModelChart(document.getElementById('tcpIpModelChart').getContext('2d'), tcpIpData, 'TCP/IP Model');
+            }
+
+            // Mock Terminal Logic
+            const terminalOutput = document.getElementById('terminalOutput');
+            const terminalCommands = {
+                ping: `C:\\Users\\Learner> ping google.com
+
+Pinging google.com [142.250.190.78] with 32 bytes of data:
+Reply from 142.250.190.78: bytes=32 time=12ms TTL=116
+Reply from 142.250.190.78: bytes=32 time=11ms TTL=116
+Reply from 142.250.190.78: bytes=32 time=12ms TTL=116
+
+Ping statistics for 142.250.190.78:
+    Packets: Sent = 3, Received = 3, Lost = 0 (0% loss),
+Approximate round trip times in milli-seconds:
+    Minimum = 11ms, Maximum = 12ms, Average = 11ms`,
+                ipconfig: `C:\\Users\\Learner> ipconfig
+
+Windows IP Configuration
+
+Ethernet adapter Ethernet:
+   Connection-specific DNS Suffix  . :
+   IPv4 Address. . . . . . . . . . . : 192.168.1.10
+   Subnet Mask . . . . . . . . . . . : 255.255.255.0
+   Default Gateway . . . . . . . . . : 192.168.1.1`,
+                tracert: `C:\\Users\\Learner> tracert google.com
+
+Tracing route to google.com [142.250.190.78]
+over a maximum of 30 hops:
+
+  1    <1 ms    <1 ms    <1 ms  192.168.1.1
+  2     8 ms     7 ms     9 ms  my.isp.com [10.0.0.1]
+  3    10 ms     9 ms     9 ms  some.router.isp.com [x.x.x.x]
+  ...
+ 11    12 ms    11 ms    12 ms  142.250.190.78
+
+Trace complete.`,
+                nslookup: `C:\\Users\\Learner> nslookup google.com
+Server:  my.dns.server
+Address:  8.8.8.8
+
+Non-authoritative answer:
+Name:    google.com
+Addresses:  2a00:1450:4009:820::200e
+          142.250.190.78`
+            };
+
+            document.getElementById('pingBtn').addEventListener('click', () => {
+                terminalOutput.textContent = terminalCommands.ping;
+            });
+            document.getElementById('ipconfigBtn').addEventListener('click', () => {
+                terminalOutput.textContent = terminalCommands.ipconfig;
+            });
+            document.getElementById('tracertBtn').addEventListener('click', () => {
+                terminalOutput.textContent = terminalCommands.tracert;
+            });
+            document.getElementById('nslookupBtn').addEventListener('click', () => {
+                terminalOutput.textContent = terminalCommands.nslookup;
+            });
+        });
+    </script>
+</body>
+
+</html>
