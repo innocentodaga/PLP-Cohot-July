@@ -1,27 +1,27 @@
-# Step 1: Create an empty list
+#1 Create an empty list
 my_list = []
 
-# Step 2: Append elements 10, 20, 30, 40
+# 2 add using append elements 10, 20, 30, 40
 my_list.append(10)
 my_list.append(20)
 my_list.append(30)
 my_list.append(40)
 
-# Step 3: Insert 15 at the second position (index 1)
+# 3 insert 15 at the second position (index 1)
 my_list.insert(1, 15)
 
-# Step 4: Extend the list with [50, 60, 70]
+# 4 extend the list with [50, 60, 70]
 my_list.extend([50, 60, 70])
 
-# Step 5: Remove the last element
+# 5 remove the last element
 my_list.pop()
 
-# Step 6: Sort the list in ascending order
+# 6 sort the list in ascending order
 my_list.sort()
 
-# Step 7: Find and print the index of value 30
+# lastly find and print the index of value 30
 index_of_30 = my_list.index(30)
 print("Index of 30:", index_of_30)
 
-# Optional: Print the final state of the list
+# print out the final state of the list
 print("Final my_list:", my_list)
